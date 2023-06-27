@@ -9,11 +9,12 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Data
+@Builder
 @Table(name = "USER_ROLE")
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
 public class UserRole {
+
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;

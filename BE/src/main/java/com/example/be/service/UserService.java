@@ -1,6 +1,8 @@
 package com.example.be.service;
 
 import com.example.be.model.User;
+import com.example.be.payload.request.EditRequest;
+import com.example.be.payload.request.FindUserRequest;
 import com.example.be.payload.request.LoginRequest;
 import com.example.be.payload.request.RegisterRequest;
 import org.springframework.http.ResponseEntity;
@@ -19,4 +21,8 @@ public interface UserService {
   ResponseEntity<String> deleteUserById(Long userid);
 
   ResponseEntity<Object> getAll();
+
+  ResponseEntity<Object> getUser(FindUserRequest findUserRequest);
+
+  ResponseEntity<Object> editUser(Long userId, EditRequest editRequest);
 }

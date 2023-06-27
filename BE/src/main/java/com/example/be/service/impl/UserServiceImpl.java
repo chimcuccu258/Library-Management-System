@@ -3,12 +3,11 @@ package com.example.be.service.impl;
 import com.example.be.model.Role;
 import com.example.be.model.User;
 import com.example.be.model.UserRole;
+import com.example.be.payload.request.EditRequest;
+import com.example.be.payload.request.FindUserRequest;
 import com.example.be.payload.request.LoginRequest;
 import com.example.be.payload.request.RegisterRequest;
-import com.example.be.payload.response.ListDataResponse;
-import com.example.be.payload.response.LoginResponse;
-import com.example.be.payload.response.RegisterResponse;
-import com.example.be.payload.response.UserResponse;
+import com.example.be.payload.response.*;
 import com.example.be.repository.RoleRepository;
 import com.example.be.repository.UserRepository;
 import com.example.be.repository.UserRoleRepository;
@@ -17,12 +16,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import java.util.stream.Collectors;
+
 
 import java.util.List;
 import java.util.Optional;
 
 @Service
-public class UserServiceImplement implements UserService {
+public class UserServiceImpl implements UserService {
   @Autowired
   UserRepository userRepository;
 
@@ -35,111 +36,6 @@ public class UserServiceImplement implements UserService {
   @Override
   public List<User> getUsers() {
     return null;
-  }
-
-  @Override
-  public ResponseEntity<Object> createUser(RegisterRequest registerRequest) {
-    try {
-      String userName = registerRequest.getUserName();
-      String password = registerRequest.getPassword();
-      Boolean gender = registerRequest.getGender();
-      String phoneNumber = registerRequest.getPhoneNumber();
-      String email = registerRequest.getEmail();
-
-      if (userRepository.existsByPhoneNumber(phoneNumber)) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body("Phone number already exists!");
-      }
-      if (userRepository.existsByEmail(email)) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body("Email already exists!");
-      }
-      if (!validateUserName(userName)) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body("Invalid username!");
-      }
-      if (!validatePhoneNumber(phoneNumber)) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body("Invalid phone number!");
-      }
-      if (!validateEmail(email)) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body("Invalid email!");
-      }
-
-      Optional<Role> role = roleRepository.findById(3L);
-      if (role.isEmpty()) {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body("Role not found!");
-      }
-
-      User user = new User();
-      user.setUserName(userName);
-      user.setPassword(password);
-      user.setGender(gender);
-      user.setPhoneNumber(phoneNumber);
-      user.setEmail(email);
-
-      User savedUser = userRepository.save(user);
-      UserRole userRole = UserRole.builder().role(role.get()).user(savedUser).build();
-      userRoleRepository.save(userRole);
-      RegisterResponse registerResponse = new RegisterResponse();
-      registerResponse.setUserName(user.getUserName());
-      registerResponse.setGender(user.getGender());
-      registerResponse.setPhoneNumber(user.getPhoneNumber());
-      registerResponse.setEmail(user.getEmail());
-      ListDataResponse<Object> listDataResponse = ListDataResponse.builder().message("OK").data(registerResponse).build();
-      return ResponseEntity.status(HttpStatus.CREATED).body(listDataResponse);
-    } catch (Exception e) {
-      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-              .body("An exception occurred from server with exception = " + e);
-    }
-  }
-
-  @Override
-  public ResponseEntity<Object> validateUser(LoginRequest loginRequest) {
-    try {
-      String email = loginRequest.getEmail();
-      String password = loginRequest.getPassword();
-      if (email.equals("ngavm@gmail.com") && password.equals("ngavm")) {
-        return ResponseEntity.ok(loginRequest);
-      }
-
-      User foundUser = userRepository.findByEmail(email);
-      if (foundUser != null) {
-        if (foundUser.getPassword().equals(password)) {
-          LoginResponse loginResponse = new LoginResponse();
-          loginResponse.setUserName(foundUser.getUserName());
-          loginResponse.setGender(foundUser.getGender());
-          loginResponse.setPhoneNumber(foundUser.getPhoneNumber());
-          loginResponse.setEmail(foundUser.getEmail());
-          ListDataResponse<Object> listDataResponse = ListDataResponse.builder().message("OK").data(loginResponse).build();
-          return ResponseEntity.status(HttpStatus.OK).body(listDataResponse);
-        } else {
-          return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid password!");
-        }
-      } else {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Email not found!");
-      }
-    } catch (Exception e) {
-      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-              .body("An exception occurred from the server with exception = " + e);
-    }
-  }
-
-  @Override
-  public ResponseEntity<String> deleteUserById(Long userid) {
-    try {
-      if (userRepository.existsById(userid)) {
-        userRepository.deleteById(userid);
-        return ResponseEntity.ok("User " + userid + " deleted successfully");
-      } else {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
-      }
-    } catch (Exception e) {
-      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-              .body("An exception occurred from the server with exception = " + e);
-    }
   }
 
   @Override
@@ -165,8 +61,190 @@ public class UserServiceImplement implements UserService {
     }
   }
 
+  @Override
+  public ResponseEntity<Object> getUser(FindUserRequest findUserRequest) {
+    try {
+      String userName = findUserRequest.getUserName();
+      String phoneNumber = findUserRequest.getPhoneNumber();
+      String email = findUserRequest.getEmail();
+
+      User user = userRepository.findByUserNameOrPhoneNumberOrEmail(userName, phoneNumber, email);
+
+      if (user != null) {
+        UserResponse ListDataResponse = new UserResponse(
+                user.getUserName(),
+                user.getGender(),
+                user.getPhoneNumber(),
+                user.getEmail(),
+                user.getUserRole().stream().map(userRole -> userRole.getRole().getRoleName()).collect(Collectors.toList())
+        );
+        return new ResponseEntity<>(ListDataResponse, HttpStatus.OK);
+      } else {
+        ListDataResponse<Object> listDataResponse = ListDataResponse.builder().message("User not found!").build();
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(listDataResponse);
+      }
+    } catch (Exception e) {
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+              .body("An exception occurred from the server with exception = " + e);
+    }
+  }
+
+  @Override
+  public ResponseEntity<Object> editUser(Long userId, EditRequest editRequest) {
+    try {
+      Optional<User> userOptional = userRepository.findById(userId);
+      if (userOptional.isPresent()) {
+        User user = userOptional.get();
+        String newPassword = editRequest.getPassword();
+        if (newPassword.isBlank()) {
+          return ResponseEntity.badRequest().body("Password is required!");
+        }
+        user.setPassword(newPassword);
+        userRepository.save(user);
+        return ResponseEntity.ok("Password updated successfully for user " + userId);
+      } else {
+        ListDataResponse<Object> listDataResponse = ListDataResponse.builder()
+                .message("User not found!")
+                .build();
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(listDataResponse);
+      }
+    } catch (Exception e) {
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+              .body("An exception occurred from the server with exception = " + e);
+    }
+  }
+
+
+  @Override
+  public ResponseEntity<Object> createUser(RegisterRequest registerRequest) {
+    try {
+      String userName = registerRequest.getUserName();
+      String password = registerRequest.getPassword();
+      Boolean gender = registerRequest.getGender();
+      String phoneNumber = registerRequest.getPhoneNumber();
+      String email = registerRequest.getEmail();
+
+      if (userName.isBlank()) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body("Username is required!");
+      }
+      if (password.isBlank()) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body("Password is required!");
+      }
+      if (gender == null || gender.toString().isBlank()) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body("Gender is required!");
+      }
+      if (phoneNumber.isBlank()) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body("Phone number is required!");
+      }
+      if (email.isBlank()) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body("Email is required!");
+      }
+      if (userRepository.existsByPhoneNumber(phoneNumber)) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body("Phone number already exists!");
+      }
+      if (userRepository.existsByEmail(email)) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body("Email already exists!");
+      }
+      if (!validateUserName(userName)) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body("Invalid username!");
+      }
+      if (!Boolean.TRUE.equals(gender) && !Boolean.FALSE.equals(gender)) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body("Invalid gender value! Gender must be either true or false.");
+      }
+      if (!validatePhoneNumber(phoneNumber)) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body("Invalid phone number!");
+      }
+      if (!validateEmail(email)) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body("Invalid email!");
+      }
+
+      Optional<Role> role = roleRepository.findById(3L);
+      if (role.isEmpty()) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body("Role not found!");
+      }
+
+      User user = new User();
+      user.setUserName(userName);
+      user.setPassword(password);
+      user.setGender(gender);
+      user.setPhoneNumber(phoneNumber);
+      user.setEmail(email);
+      User savedUser = userRepository.save(user);
+
+      UserRole userRole = UserRole.builder().role(role.get()).user(savedUser).build();
+      userRoleRepository.save(userRole);
+
+      RegisterResponse registerResponse = new RegisterResponse();
+      registerResponse.setUserName(user.getUserName());
+      registerResponse.setGender(user.getGender());
+      registerResponse.setPhoneNumber(user.getPhoneNumber());
+      registerResponse.setEmail(user.getEmail());
+      ListDataResponse<Object> listDataResponse = ListDataResponse.builder().message("OK").data(registerResponse).build();
+      return ResponseEntity.status(HttpStatus.CREATED).body(listDataResponse);
+    } catch (Exception e) {
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+              .body("An exception occurred from server with exception = " + e);
+    }
+  }
+
+  @Override
+  public ResponseEntity<Object> validateUser(LoginRequest loginRequest) {
+    try {
+      String email = loginRequest.getEmail();
+      String password = loginRequest.getPassword();
+
+      User foundUser = userRepository.findByEmail(email);
+      if (foundUser != null) {
+        if (foundUser.getPassword().equals(password)) {
+          LoginResponse loginResponse = new LoginResponse();
+          loginResponse.setUserName(foundUser.getUserName());
+          loginResponse.setGender(foundUser.getGender());
+          loginResponse.setPhoneNumber(foundUser.getPhoneNumber());
+          loginResponse.setEmail(foundUser.getEmail());
+          ListDataResponse<Object> listDataResponse = ListDataResponse.builder().message("OK").data(loginResponse).build();
+          return ResponseEntity.status(HttpStatus.OK).body(listDataResponse);
+        } else {
+          return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid password!");
+        }
+      } else {
+        ListDataResponse<Object> listDataResponse = ListDataResponse.builder().message("Email not found!").build();
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(listDataResponse);
+      }
+    } catch (Exception e) {
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+              .body("An exception occurred from the server with exception = " + e);
+    }
+  }
+
+  @Override
+  public ResponseEntity<String> deleteUserById(Long id) {
+    try {
+      if (userRepository.existsById(id)) {
+        userRepository.deleteById(id);
+        return ResponseEntity.ok("User " + id + " deleted successfully");
+      } else {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+      }
+    } catch (Exception e) {
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+              .body("An exception occurred from the server with exception = " + e);
+    }
+  }
+
   public boolean validateUserName(String userName) {
-    String regex = "^[a-zA-Z ]*$";
+    String regex = "^[a-zA-ZÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠàáâãèéêìíòóôõùúăđĩũơƯẠẢẤẦẨẪẬẮẰẲẴẶẸẺẼỀỂẾưạảấầẩẫậắằẳẵặẹẻẽềểếỄỆỈỊỌỎỐỒỔỖỘỚỜỞỠỢỤỦỨỪễệỉịọỏốồổỗộớờởỡợụủứừỬỮỰỲỴÝỶỸửữựỳỵỷỹ\\s\\W|_]+$";
 
     if (userName.matches(regex)) {
       System.out.println(("Username is valid"));
@@ -176,18 +254,6 @@ public class UserServiceImplement implements UserService {
       return false;
     }
   }
-
-//  public boolean validatePassword(String password) {
-//    String regex = "(?=.*[0-9])(?=.*[!@#$%^&*()\\[\\]{}\\-_=~`|:;\"'<>,./?])(?=.*[a-z])(?=.*[A-Z])(?=.*).{8,}";
-//
-//    if (password.matches(regex)) {
-//      System.out.println("Password is valid");
-//      return true;
-//    } else {
-//      System.out.println("Password is invalid");
-//      return false;
-//    }
-//  }
 
   public boolean validatePhoneNumber(String phoneNumber) {
     String regex = "^0\\d{9}$";
