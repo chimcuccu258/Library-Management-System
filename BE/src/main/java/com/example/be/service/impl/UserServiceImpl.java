@@ -65,11 +65,10 @@ public class UserServiceImpl implements UserService {
   @Override
   public ResponseEntity<Object> getUser(FindUserRequest findUserRequest) {
     try {
-      String userName = findUserRequest.getUserName();
-      String phoneNumber = findUserRequest.getPhoneNumber();
-      String email = findUserRequest.getEmail();
-
-      User user = userRepository.findByUserNameOrPhoneNumberOrEmail(userName, phoneNumber, email);
+      User user = userRepository.findByUserNameOrPhoneNumberOrEmail(
+              findUserRequest.getUserName(),
+              findUserRequest.getPhoneNumber(),
+              findUserRequest.getEmail());
       if (user != null) {
         UserResponse ListDataResponse = new UserResponse(
                 user.getUserName(),
@@ -139,53 +138,43 @@ public class UserServiceImpl implements UserService {
   @Override
   public ResponseEntity<Object> createUser(RegisterRequest registerRequest) {
     try {
-      String userName = registerRequest.getUserName();
-      String password = registerRequest.getPassword();
-      Boolean gender = registerRequest.getGender();
-      String phoneNumber = registerRequest.getPhoneNumber();
-      String email = registerRequest.getEmail();
-
-      if (userName.isBlank()) {
+      if (registerRequest.getUserName().isBlank()) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body("Username is required!");
       }
-      if (password.isBlank()) {
+      if (registerRequest.getPassword().isBlank()) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body("Password is required!");
       }
-      if (gender == null || gender.toString().isBlank()) {
+      if (registerRequest.getGender() == null) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body("Gender is required!");
       }
-      if (phoneNumber.isBlank()) {
+      if (registerRequest.getPhoneNumber().isBlank()) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body("Phone number is required!");
       }
-      if (email.isBlank()) {
+      if (registerRequest.getEmail().isBlank()) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body("Email is required!");
       }
-      if (userRepository.existsByPhoneNumber(phoneNumber)) {
+      if (userRepository.existsByPhoneNumber(registerRequest.getPhoneNumber())) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body("Phone number already exists!");
       }
-      if (userRepository.existsByEmail(email)) {
+      if (userRepository.existsByEmail(registerRequest.getEmail())) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body("Email already exists!");
       }
-      if (!validateUserName(userName)) {
+      if (!validateUserName(registerRequest.getUserName())) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body("Invalid username!");
       }
-      if (!Boolean.TRUE.equals(gender) && !Boolean.FALSE.equals(gender)) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body("Invalid gender value! Gender must be either true or false.");
-      }
-      if (!validatePhoneNumber(phoneNumber)) {
+      if (!validatePhoneNumber(registerRequest.getPhoneNumber())) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body("Invalid phone number!");
       }
-      if (!validateEmail(email)) {
+      if (!validateEmail(registerRequest.getEmail())) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body("Invalid email!");
       }
@@ -197,11 +186,11 @@ public class UserServiceImpl implements UserService {
       }
 
       User user = new User();
-      user.setUserName(userName);
-      user.setPassword(password);
-      user.setGender(gender);
-      user.setPhoneNumber(phoneNumber);
-      user.setEmail(email);
+      user.setUserName(registerRequest.getUserName());
+      user.setPassword(registerRequest.getPassword());
+      user.setGender(registerRequest.getGender());
+      user.setPhoneNumber(registerRequest.getPhoneNumber());
+      user.setEmail(registerRequest.getEmail());
       User savedUser = userRepository.save(user);
 
       UserRole userRole = UserRole.builder().role(role.get()).user(savedUser).build();

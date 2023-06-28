@@ -7,7 +7,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Data
@@ -28,5 +29,5 @@ public class Category {
           mappedBy = "category",
           cascade = CascadeType.ALL,
           fetch = FetchType.LAZY)
-  private Set<Book> books;
+  private List<Book> books = new ArrayList<>();
 }

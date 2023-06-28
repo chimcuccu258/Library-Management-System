@@ -19,13 +19,11 @@ public class UserRole {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  //  @Id
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "user_id")
   @JsonIgnore
   private User user;
 
-  //  @Id
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "role_id")
   private Role role;

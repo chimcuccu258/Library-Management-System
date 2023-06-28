@@ -21,17 +21,16 @@ public class CategoryServiceImpl implements CategoryService {
   @Override
   public ResponseEntity<Object> addCtg(CategoryRequest categoryRequest) {
     try {
-      String ctgName = categoryRequest.getCtgName();
-      if (categoryRepository.existsByCtgName(ctgName)) {
+      if (categoryRepository.existsByCtgName(categoryRequest.getCtgName())) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Category already exists!");
       }
-      if (!validateCtg(ctgName)) {
+      if (!validateCtg(categoryRequest.getCtgName())) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body("Invalid category name!");
       }
 
       Category category = new Category();
-      category.setCtgName(ctgName);
+      category.setCtgName(categoryRequest.getCtgName());
       categoryRepository.save(category);
 
       CategoryResponse categoryResponse = new CategoryResponse();
