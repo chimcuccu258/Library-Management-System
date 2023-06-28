@@ -18,15 +18,12 @@ public class CategoryServiceImpl implements CategoryService {
   @Autowired
   CategoryRepository categoryRepository;
 
-
   @Override
   public ResponseEntity<Object> addCtg(CategoryRequest categoryRequest) {
     try {
       String ctgName = categoryRequest.getCtgName();
-
       if (categoryRepository.existsByCtgName(ctgName)) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body("Category already exists!");
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Category already exists!");
       }
       if (!validateCtg(ctgName)) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -43,6 +40,38 @@ public class CategoryServiceImpl implements CategoryService {
       ListDataResponse<Object> listDataResponse = ListDataResponse.builder().message("OK").data(categoryResponse).build();
       return ResponseEntity.status(HttpStatus.CREATED).body(listDataResponse);
 
+    } catch (Exception e) {
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+              .body("An exception occurred from server with exception = " + e);
+    }
+  }
+
+  @Override
+  public ResponseEntity<Object> getAll() {
+    try {
+      List<Category> categories = categoryRepository.findAll();
+      ListDataResponse<Object> listDataResponse = ListDataResponse.builder().message("OK").data(categories).build();
+      return ResponseEntity.ok(listDataResponse);
+    } catch (Exception e) {
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+              .body("An exception occurred from server with exception = " + e);
+    }
+  }
+
+  @Override
+  public ResponseEntity<Object> deleteCtg(Long id) {
+    try {
+      if (categoryRepository.existsById(id)) {
+        categoryRepository.deleteById(id);
+        CategoryResponse categoryResponse = new CategoryResponse();
+        categoryResponse.setCtgName(categoryResponse.getCtgName());
+        ListDataResponse<Object> listDataResponse =
+                ListDataResponse.builder().message("Category " + id + " deleted " + "successfully").build();
+        return ResponseEntity.ok(listDataResponse);
+      } else {
+        ListDataResponse<Object> listDataResponse = ListDataResponse.builder().message("Category not found").build();
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(listDataResponse);
+      }
     } catch (Exception e) {
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
               .body("An exception occurred from server with exception = " + e);

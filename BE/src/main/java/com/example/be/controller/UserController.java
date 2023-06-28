@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/backend/user")
-public class RegisterController {
+public class UserController {
   @Autowired
   UserService userService;
 
@@ -43,14 +43,15 @@ public class RegisterController {
   }
 
   @DeleteMapping("/delete/{userid}")
-  public ResponseEntity<String> deleteUser(@PathVariable("userid") long id) {
+  public ResponseEntity<Object> deleteUser(@PathVariable("userid") long id) {
     return userService.deleteUserById(id);
   }
 
+
   @PutMapping("/edit/{userId}")
   public ResponseEntity<Object> editUser(
-          @PathVariable("userId") Long userId,
+          @PathVariable("userId") Long id,
           @RequestBody EditRequest editRequest) {
-    return userService.editUser(userId, editRequest);
+    return userService.editUser(id, editRequest);
   }
 }

@@ -1,5 +1,6 @@
 package com.example.be.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -21,6 +22,9 @@ public class Book {
   private String bookName;
 
   @Column
+  private String authorName;
+
+  @Column
   private Integer inventory;
 
   @Column
@@ -31,4 +35,14 @@ public class Book {
 
   @Column
   private String description;
+
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "author_id", referencedColumnName = "id")
+  @JsonIgnore
+  private Author author;
+
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "category_id", referencedColumnName = "id")
+  @JsonIgnore
+  private Category category;
 }

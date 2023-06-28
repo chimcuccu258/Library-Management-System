@@ -10,15 +10,27 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/backend/category")
 public class CategoryController {
+
   @Autowired
   CategoryService categoryService;
 
   @Autowired
   CategoryRepository categoryRepository;
 
+  @GetMapping("/get-all")
+  public ResponseEntity<Object> getAllCategories() {
+    return categoryService.getAll();
+  }
+
   @PostMapping("/add")
   public ResponseEntity<Object> addCategory(
           @RequestBody CategoryRequest categoryRequest) {
     return categoryService.addCtg(categoryRequest);
   }
+
+  @DeleteMapping("delete/{id}")
+  public ResponseEntity<Object> deleteCategory(@PathVariable("id") long id) {
+    return categoryService.deleteCtg(id);
+  }
+
 }

@@ -24,11 +24,11 @@ public class Role {
   @Column
   private String roleName;
 
+  @JsonManagedReference
   @OneToMany(
           mappedBy = "role",
           cascade = CascadeType.ALL,
           orphanRemoval = true
   )
-  @JsonManagedReference
   private List<UserRole> userRole = new ArrayList<>();
 }

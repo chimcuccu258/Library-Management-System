@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+
 import java.util.stream.Collectors;
 
 
@@ -69,7 +70,6 @@ public class UserServiceImpl implements UserService {
       String email = findUserRequest.getEmail();
 
       User user = userRepository.findByUserNameOrPhoneNumberOrEmail(userName, phoneNumber, email);
-
       if (user != null) {
         UserResponse ListDataResponse = new UserResponse(
                 user.getUserName(),
@@ -90,9 +90,9 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
-  public ResponseEntity<Object> editUser(Long userId, EditRequest editRequest) {
+  public ResponseEntity<Object> editUser(Long id, EditRequest editRequest) {
     try {
-      Optional<User> userOptional = userRepository.findById(userId);
+      Optional<User> userOptional = userRepository.findById(id);
       if (userOptional.isPresent()) {
         User user = userOptional.get();
         String newPassword = editRequest.getPassword();
@@ -101,11 +101,16 @@ public class UserServiceImpl implements UserService {
         }
         user.setPassword(newPassword);
         userRepository.save(user);
-        return ResponseEntity.ok("Password updated successfully for user " + userId);
-      } else {
+        RegisterResponse registerResponse = new RegisterResponse();
+        registerResponse.setUserName(user.getUserName());
+        registerResponse.setGender(user.getGender());
+        registerResponse.setPhoneNumber(user.getPhoneNumber());
+        registerResponse.setEmail(user.getEmail());
         ListDataResponse<Object> listDataResponse = ListDataResponse.builder()
-                .message("User not found!")
-                .build();
+                .message("Password updated successfully for user " + registerResponse.getUserName()).data(registerResponse).build();
+        return ResponseEntity.status(HttpStatus.OK).body(listDataResponse);
+      } else {
+        ListDataResponse<Object> listDataResponse = ListDataResponse.builder().message("User not found!").build();
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(listDataResponse);
       }
     } catch (Exception e) {
@@ -114,6 +119,22 @@ public class UserServiceImpl implements UserService {
     }
   }
 
+  @Override
+  public ResponseEntity<Object> deleteUserById(Long id) {
+    try {
+      if (userRepository.existsById(id)) {
+        userRepository.deleteById(id);
+        ListDataResponse<Object> listDataResponse = ListDataResponse.builder().message("User " + id + " deleted successfully").build();
+        return ResponseEntity.ok(listDataResponse);
+      } else {
+        ListDataResponse<Object> listDataResponse = ListDataResponse.builder().message("User not found").build();
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(listDataResponse);
+      }
+    } catch (Exception e) {
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+              .body("An exception occurred from the server with exception = " + e);
+    }
+  }
 
   @Override
   public ResponseEntity<Object> createUser(RegisterRequest registerRequest) {
@@ -221,21 +242,6 @@ public class UserServiceImpl implements UserService {
       } else {
         ListDataResponse<Object> listDataResponse = ListDataResponse.builder().message("Email not found!").build();
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(listDataResponse);
-      }
-    } catch (Exception e) {
-      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-              .body("An exception occurred from the server with exception = " + e);
-    }
-  }
-
-  @Override
-  public ResponseEntity<String> deleteUserById(Long id) {
-    try {
-      if (userRepository.existsById(id)) {
-        userRepository.deleteById(id);
-        return ResponseEntity.ok("User " + id + " deleted successfully");
-      } else {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
       }
     } catch (Exception e) {
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)

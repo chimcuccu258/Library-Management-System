@@ -18,11 +18,11 @@ public interface UserService {
 
   ResponseEntity<Object> validateUser(LoginRequest loginRequest);
 
-  ResponseEntity<String> deleteUserById(Long userid);
-
   ResponseEntity<Object> getAll();
 
   ResponseEntity<Object> getUser(FindUserRequest findUserRequest);
 
-  ResponseEntity<Object> editUser(Long userId, EditRequest editRequest);
+  ResponseEntity<Object> editUser(Long id, EditRequest editRequest);
+
+  ResponseEntity<Object> deleteUserById(Long id);
 }
