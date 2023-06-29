@@ -39,4 +39,5 @@ public class Book {
   @JsonIgnore
   @JoinColumn(name = "category_id", referencedColumnName = "id")
   private Category category;
+
 }

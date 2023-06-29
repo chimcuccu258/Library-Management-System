@@ -43,4 +43,11 @@ public class User {
           orphanRemoval = true
   )
   private List<UserRole> userRole = new ArrayList<>();
+
+  @JsonManagedReference
+  @OneToMany(
+          mappedBy = "user",
+          cascade = CascadeType.ALL,
+          orphanRemoval = true)
+  private List<Bill> bills = new ArrayList<>();
 }

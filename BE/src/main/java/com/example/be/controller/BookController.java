@@ -1,7 +1,6 @@
 package com.example.be.controller;
 
 import com.example.be.payload.request.BookRequest;
-import com.example.be.payload.request.CategoryRequest;
 import com.example.be.repository.BookRepository;
 import com.example.be.service.BookService;
 import org.springframework.beans.factory.annotation.Autowired;

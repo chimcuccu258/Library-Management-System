@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class BookServiceImpl implements BookService {
@@ -34,8 +35,16 @@ public class BookServiceImpl implements BookService {
   public ResponseEntity<Object> getAll() {
     try {
       List<Book> books = bookRepository.findAll();
+      List<BookResponse> bookResponses = books.stream().map(book -> new BookResponse(
+              book.getBookName(),
+              book.getInventory(),
+              book.getPrice(),
+              book.getDescription(),
+              book.getAuthor().getId(),
+              book.getCategory().getId()))
+              .collect(Collectors.toList());
       ListDataResponse<Object> listDataResponse = ListDataResponse.builder().message("OK")
-              .data(books).build();
+              .data(bookResponses).build();
       return ResponseEntity.ok(listDataResponse);
     } catch (Exception e) {
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)

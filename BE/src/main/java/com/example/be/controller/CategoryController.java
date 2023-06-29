@@ -1,6 +1,5 @@
 package com.example.be.controller;
 
-import com.example.be.payload.request.AuthorRequest;
 import com.example.be.payload.request.CategoryRequest;
 import com.example.be.repository.CategoryRepository;
 import com.example.be.service.CategoryService;
