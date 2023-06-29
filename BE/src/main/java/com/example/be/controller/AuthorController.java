@@ -1,6 +1,7 @@
 package com.example.be.controller;
 
 import com.example.be.payload.request.AuthorRequest;
+import com.example.be.payload.request.EditRequest;
 import com.example.be.repository.AuthorRepository;
 import com.example.be.service.AuthorService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +27,13 @@ public class AuthorController {
   public ResponseEntity<Object> addAuthor(
           @RequestBody AuthorRequest authorRequest) {
     return authorService.addAuth(authorRequest);
+  }
+
+  @PutMapping("/edit/{id}")
+  public ResponseEntity<Object> editAuthor(
+          @PathVariable("id") Long id,
+          @RequestBody AuthorRequest authorRequest) {
+    return authorService.editAuth(id,authorRequest);
   }
 
   @DeleteMapping("/delete/{id}")

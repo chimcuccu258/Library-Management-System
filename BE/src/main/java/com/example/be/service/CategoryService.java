@@ -12,4 +12,6 @@ public interface CategoryService {
   ResponseEntity<Object> addCtg(CategoryRequest categoryRequest);
 
   ResponseEntity<Object> deleteCtg(Long id);
+
+  ResponseEntity<Object> editCtg(Long id, CategoryRequest categoryRequest);
 }

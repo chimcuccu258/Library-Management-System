@@ -12,4 +12,6 @@ public interface AuthorService {
   ResponseEntity<Object> addAuth(AuthorRequest authorRequest);
 
   ResponseEntity<Object> deleteAuth(Long id);
+
+  ResponseEntity<Object> editAuth(Long id, AuthorRequest authorRequest);
 }

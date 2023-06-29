@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class CategoryServiceImpl implements CategoryService {
@@ -38,7 +39,6 @@ public class CategoryServiceImpl implements CategoryService {
 
       ListDataResponse<Object> listDataResponse = ListDataResponse.builder().message("OK").data(categoryResponse).build();
       return ResponseEntity.status(HttpStatus.CREATED).body(listDataResponse);
-
     } catch (Exception e) {
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
               .body("An exception occurred from server with exception = " + e);
@@ -62,13 +62,12 @@ public class CategoryServiceImpl implements CategoryService {
     try {
       if (categoryRepository.existsById(id)) {
         categoryRepository.deleteById(id);
-        CategoryResponse categoryResponse = new CategoryResponse();
-        categoryResponse.setCtgName(categoryResponse.getCtgName());
-        ListDataResponse<Object> listDataResponse =
-                ListDataResponse.builder().message("Category " + id + " deleted " + "successfully").build();
+        ListDataResponse<Object> listDataResponse = ListDataResponse.builder()
+                .message("Category " + id + " deleted " + "successfully").build();
         return ResponseEntity.ok(listDataResponse);
       } else {
-        ListDataResponse<Object> listDataResponse = ListDataResponse.builder().message("Category not found").build();
+        ListDataResponse<Object> listDataResponse = ListDataResponse.builder()
+                .message("Category not found").build();
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(listDataResponse);
       }
     } catch (Exception e) {
@@ -77,8 +76,39 @@ public class CategoryServiceImpl implements CategoryService {
     }
   }
 
+  @Override
+  public ResponseEntity<Object> editCtg(Long id, CategoryRequest categoryRequest) {
+    try {
+      Optional<Category> categoryOptional = categoryRepository.findById(id);
+      if (categoryOptional.isPresent()) {
+        Category category = categoryOptional.get();
+        if (categoryRequest.getCtgName().isBlank()) {
+          return ResponseEntity.badRequest().body("Category name is required!");
+        }
+        if (categoryRepository.existsByCtgName(categoryRequest.getCtgName()) && !categoryRequest.getCtgName().equals(category.getCtgName())) {
+          return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Category already exists!");
+        }
+        category.setCtgName(categoryRequest.getCtgName());
+        categoryRepository.save(category);
+
+        CategoryResponse categoryResponse = new CategoryResponse();
+        categoryResponse.setCtgName(category.getCtgName());
+
+        ListDataResponse<Object> listDataResponse = ListDataResponse.builder()
+                .message("Author name updated successfully!").data(categoryResponse).build();
+        return ResponseEntity.status(HttpStatus.OK).body(listDataResponse);
+      } else {
+        ListDataResponse<Object> listDataResponse = ListDataResponse.builder().message("Category not found!").build();
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(listDataResponse);
+      }
+    } catch (Exception e) {
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+              .body("An exception occurred from the server with exception = " + e);
+    }
+  }
+
   public boolean validateCtg(String ctgName) {
-    String regex = "^[a-zA-ZÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠàáâãèéêìíòóôõùúăđĩũơƯẠẢẤẦẨẪẬẮẰẲẴẶẸẺẼỀỂẾưạảấầẩẫậắằẳẵặẹẻẽềểếỄỆỈỊỌỎỐỒỔỖỘỚỜỞỠỢỤỦỨỪễệỉịọỏốồổỗộớờởỡợụủứừỬỮỰỲỴÝỶỸửữựỳỵỷỹ\\s\\W|_]+$";
+    String regex = "^[a-zA-Z]+$";
     if (ctgName.matches(regex)) {
       System.out.println("Category name is valid!");
       return true;
@@ -87,6 +117,4 @@ public class CategoryServiceImpl implements CategoryService {
       return false;
     }
   }
-
-
 }

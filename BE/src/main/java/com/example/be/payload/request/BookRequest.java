@@ -6,7 +6,7 @@ import lombok.Data;
 public class BookRequest {
   private String bookName;
   private Integer inventory;
-  private Double price;
+  private Long price;
   private String description;
   private Long authorId;
   private Long ctgId;

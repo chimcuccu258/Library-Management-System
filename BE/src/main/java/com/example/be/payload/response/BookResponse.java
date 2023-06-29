@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 public class BookResponse {
   private String bookName;
   private Integer inventory;
-  private Double price;
+  private Long price;
   private String description;
   private Long authorId;
   private Long ctgId;

@@ -1,5 +1,6 @@
 package com.example.be.controller;
 
+import com.example.be.payload.request.AuthorRequest;
 import com.example.be.payload.request.CategoryRequest;
 import com.example.be.repository.CategoryRepository;
 import com.example.be.service.CategoryService;
@@ -26,6 +27,13 @@ public class CategoryController {
   public ResponseEntity<Object> addCategory(
           @RequestBody CategoryRequest categoryRequest) {
     return categoryService.addCtg(categoryRequest);
+  }
+
+  @PutMapping("/edit/{id}")
+  public ResponseEntity<Object> editCategory(
+          @PathVariable("id") Long id,
+          @RequestBody CategoryRequest categoryRequest) {
+    return categoryService.editCtg(id,categoryRequest);
   }
 
   @DeleteMapping("delete/{id}")

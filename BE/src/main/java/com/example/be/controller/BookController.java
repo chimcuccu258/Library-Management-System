@@ -1,6 +1,7 @@
 package com.example.be.controller;
 
 import com.example.be.payload.request.BookRequest;
+import com.example.be.payload.request.CategoryRequest;
 import com.example.be.repository.BookRepository;
 import com.example.be.service.BookService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,5 +27,17 @@ public class BookController {
   public ResponseEntity<Object> addBook(
           @RequestBody BookRequest bookRequest) {
     return bookService.addBook(bookRequest);
+  }
+
+  @PutMapping("/edit/{id}")
+  public ResponseEntity<Object> editBook(
+          @PathVariable("id") Long id,
+          @RequestBody BookRequest bookRequest) {
+    return bookService.editBook(id,bookRequest);
+  }
+
+  @DeleteMapping("delete/{id}")
+  public ResponseEntity<Object> deleteBook(@PathVariable("id") long id) {
+    return bookService.deleteBook(id);
   }
 }

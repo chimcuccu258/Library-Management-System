@@ -94,11 +94,10 @@ public class UserServiceImpl implements UserService {
       Optional<User> userOptional = userRepository.findById(id);
       if (userOptional.isPresent()) {
         User user = userOptional.get();
-        String newPassword = editRequest.getPassword();
-        if (newPassword.isBlank()) {
+        if (editRequest.getPassword().isBlank()) {
           return ResponseEntity.badRequest().body("Password is required!");
         }
-        user.setPassword(newPassword);
+        user.setPassword(editRequest.getPassword());
         userRepository.save(user);
         RegisterResponse registerResponse = new RegisterResponse();
         registerResponse.setUserName(user.getUserName());
