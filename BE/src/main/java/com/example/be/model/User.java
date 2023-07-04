@@ -1,12 +1,15 @@
 package com.example.be.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -14,27 +17,40 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class User implements Serializable {
+public class User {
+
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
   @Column
-  private String fullName;
+  private String userName;
 
   @Column
-  private String username;
+  private String password;
+
+  @Column
+  private Boolean gender;
+
+  @Column
+  private String phoneNumber;
 
   @Column
   private String email;
 
-  @Column
-  private String password;
-  
+  @JsonManagedReference
+  @OneToMany(
+          mappedBy = "user",
+          cascade = CascadeType.ALL,
+          orphanRemoval = true
+  )
+  private List<UserRole> userRole = new ArrayList<>();
+
+  @JsonManagedReference
   @OneToMany(
           mappedBy = "user",
           cascade = CascadeType.ALL,
           orphanRemoval = true)
-  private List<UserRoles> userRoles;
+  private List<Bill> bills = new ArrayList<>();
 
 }

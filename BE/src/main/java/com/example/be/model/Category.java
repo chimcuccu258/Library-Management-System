@@ -15,20 +15,19 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class Role {
+public class Category {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
   @Column
-  private String roleName;
+  private String ctgName;
 
   @JsonManagedReference
   @OneToMany(
-          mappedBy = "role",
+          mappedBy = "category",
           cascade = CascadeType.ALL,
-          orphanRemoval = true
-  )
-  private List<UserRole> userRole = new ArrayList<>();
+          fetch = FetchType.LAZY)
+  private List<Book> books = new ArrayList<>();
 }
