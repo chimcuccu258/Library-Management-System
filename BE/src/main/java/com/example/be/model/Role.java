@@ -1,13 +1,12 @@
 package com.example.be.model;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.ArrayList;
+import java.io.Serializable;
 import java.util.List;
 
 @Entity
@@ -15,8 +14,7 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class Role {
-
+public class Role implements Serializable {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
@@ -24,11 +22,9 @@ public class Role {
   @Column
   private String roleName;
 
-  @JsonManagedReference
   @OneToMany(
           mappedBy = "role",
           cascade = CascadeType.ALL,
-          orphanRemoval = true
-  )
-  private List<UserRole> userRole = new ArrayList<>();
+          orphanRemoval = true)
+  private List<UserRoles> userRoles;
 }
