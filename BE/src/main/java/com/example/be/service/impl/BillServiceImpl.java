@@ -63,15 +63,12 @@ public class BillServiceImpl implements BillService {
     try {
       User user = userRepository.findById(billRequest.getUserId()).get();
 
-      boolean hasUnreturnedBill = billRepository.findByUserAndIsReturned(user, false).stream()
-              .anyMatch(bill -> !bill.getIsReturned());
-
-      if (hasUnreturnedBill) {
-        return ResponseEntity.badRequest().body("User hasn't returned books from a previous bill.");
-      }
-
       List<BillDetails> billDetailsList = billRequest.getBill_details_id().stream()
               .map(billDetailId -> billDetailsRepository.findById(billDetailId).get()).toList();
+
+      if (billDetailsList.isEmpty()) {
+        return ResponseEntity.badRequest().body("Empty bill details list.");
+      }
 
       Long totalPrice = 0L;
       for (BillDetails billDetails : billDetailsList) {
@@ -104,7 +101,7 @@ public class BillServiceImpl implements BillService {
       BillResponse billResponse = BillResponse.builder()
               .id(bill.getId())
               .userId(bill.getUser().getId())
-              .issued_date(bill.getIssue_date())
+              .issue_date(bill.getIssue_date())
               .expired_date(bill.getExpired_date())
               .total_price(bill.getTotal_price())
               .billDetailsDtoList(billDetailsDto)
@@ -157,7 +154,6 @@ public class BillServiceImpl implements BillService {
                 .map(billDetails -> BillDetailsMapper.getInstance().toDTO(billDetails))
                 .toList();
         billResponse.setBillDetailsDtoList(billDetailsDtoList);
-
         return ResponseEntity.ok(billResponse);
       } else {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)

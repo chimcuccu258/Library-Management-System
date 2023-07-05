@@ -45,4 +45,9 @@ public class BookController {
   public ResponseEntity<Object> deleteBook(@PathVariable("id") long id) {
     return bookService.deleteBook(id);
   }
+
+  @GetMapping("/search/{keyword}")
+  public ResponseEntity<Object> searchBooks(@PathVariable String keyword) {
+    return bookService.searchBooks(keyword);
+  }
 }

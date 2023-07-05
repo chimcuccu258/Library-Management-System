@@ -16,7 +16,7 @@ import java.util.List;
 public class BillResponse {
   private Long id;
   private Long userId;
-  private LocalDateTime issued_date;
+  LocalDateTime issue_date = LocalDateTime.now();
   private LocalDateTime expired_date;
   private Long total_price;
 //  private Long late_payment_fee;

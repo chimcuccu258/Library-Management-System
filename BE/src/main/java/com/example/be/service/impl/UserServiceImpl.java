@@ -138,26 +138,6 @@ public class UserServiceImpl implements UserService {
   @Override
   public ResponseEntity<Object> createUser(RegisterRequest registerRequest) {
     try {
-      if (registerRequest.getUserName().isBlank()) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body("Username is required!");
-      }
-      if (registerRequest.getPassword().isBlank()) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body("Password is required!");
-      }
-      if (registerRequest.getGender() == null) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body("Gender is required!");
-      }
-      if (registerRequest.getPhoneNumber().isBlank()) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body("Phone number is required!");
-      }
-      if (registerRequest.getEmail().isBlank()) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body("Email is required!");
-      }
       if (userRepository.existsByPhoneNumber(registerRequest.getPhoneNumber())) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body("Phone number already exists!");
@@ -173,10 +153,6 @@ public class UserServiceImpl implements UserService {
       if (!validatePhoneNumber(registerRequest.getPhoneNumber())) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body("Invalid phone number!");
-      }
-      if (!validateEmail(registerRequest.getEmail())) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body("Invalid email!");
       }
 
       Optional<Role> role = roleRepository.findById(3L);

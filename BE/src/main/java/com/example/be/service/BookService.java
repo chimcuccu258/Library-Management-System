@@ -16,4 +16,6 @@ public interface BookService {
   ResponseEntity<Object> editBook(Long id, BookRequest bookRequest);
 
   ResponseEntity<Object> getBookById(Long id);
+
+  ResponseEntity<Object> searchBooks(String keyword);
 }

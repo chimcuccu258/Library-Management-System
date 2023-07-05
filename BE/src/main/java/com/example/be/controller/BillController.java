@@ -32,7 +32,7 @@ public class BillController {
     return billService.createBill(billRequest);
   }
 
-  @PostMapping("/return/{billId}")
+  @GetMapping("/return/{billId}")
   public ResponseEntity<Object> returnBook(@PathVariable Long billId) {
     return billService.returnBook(billId);
   }

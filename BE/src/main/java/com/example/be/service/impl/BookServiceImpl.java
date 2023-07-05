@@ -15,7 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 import java.util.Optional;
@@ -126,17 +125,8 @@ public class BookServiceImpl implements BookService {
       Optional<Book> bookOptional = bookRepository.findById(id);
       if (bookOptional.isPresent()) {
         Book book = bookOptional.get();
-        if (bookRequest.getBookName().isBlank()) {
-          return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Book name is required!");
-        }
         if (bookRepository.existsByBookName(bookRequest.getBookName()) && !bookRequest.getBookName().equals(book.getBookName())) {
           return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Book already exists!");
-        }
-        if (bookRequest.getInventory() < 1) {
-          return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid!");
-        }
-        if (bookRequest.getPrice() < 0) {
-          return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid!");
         }
         if (!categoryRepository.existsById(bookRequest.getCtgId())) {
           return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Category Id is not exist!");
@@ -210,6 +200,35 @@ public class BookServiceImpl implements BookService {
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
               .body("An exception occurred from server with exception = " + e);
     }
-
   }
+
+  @Override
+  public ResponseEntity<Object> searchBooks(String keyword) {
+    try {
+      List<Book> books = bookRepository.findAllByBookNameContaining(keyword);
+
+      if (!books.isEmpty()) {
+        List<BookResponse> bookResponses = books.stream().map(book -> new BookResponse(
+                        book.getBookName(),
+                        book.getInventory(),
+                        book.getPrice(),
+                        book.getDescription(),
+                        book.getAuthor().getId(),
+                        book.getCategory().getId()))
+                .collect(Collectors.toList());
+
+        ListDataResponse<Object> listDataResponse = ListDataResponse.builder().message("OK")
+                .data(bookResponses).build();
+        return ResponseEntity.ok(listDataResponse);
+      } else {
+        ListDataResponse<Object> listDataResponse = ListDataResponse.builder().message("No books found!").build();
+        return ResponseEntity.ok(listDataResponse);
+      }
+    } catch (Exception e) {
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+              .body("An exception occurred from the server with exception = " + e);
+    }
+  }
+
+
 }
