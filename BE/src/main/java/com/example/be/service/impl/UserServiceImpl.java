@@ -195,10 +195,17 @@ public class UserServiceImpl implements UserService {
       if (foundUser != null) {
         if (foundUser.getPassword().equals(password)) {
           LoginResponse loginResponse = new LoginResponse();
+          loginResponse.setId(foundUser.getId());
           loginResponse.setUserName(foundUser.getUserName());
           loginResponse.setGender(foundUser.getGender());
           loginResponse.setPhoneNumber(foundUser.getPhoneNumber());
           loginResponse.setEmail(foundUser.getEmail());
+
+          List<String> roleNames = foundUser.getUserRole().stream()
+                  .map(userRole -> userRole.getRole().getRoleName())
+                  .collect(Collectors.toList());
+          loginResponse.setRoleNames(roleNames);
+
           ListDataResponse<Object> listDataResponse = ListDataResponse.builder().message("OK").data(loginResponse).build();
           return ResponseEntity.status(HttpStatus.OK).body(listDataResponse);
         } else {
