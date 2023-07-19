@@ -1,0 +1,80 @@
+.container {
+  position: relative;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.background-image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: url(https://img.freepik.com/free-photo/clean-empty-library-hall_23-2149215414.jpg?w=2000&t=st=1688665817~exp=1688666417~hmac=8e24ae18925e4f7e01bb899f7fbc6897074b99f2b84a4b9b14a6319e15a3c354);
+  background-size: cover;
+  background-position: center;
+  filter: blur(2px);
+}
+
+.login-form {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: rgba(255, 255, 255, 0.5);
+  border-radius: 10px;
+  padding: 2rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  width: 90%;
+  max-width: 800px;
+}
+
+.login-form-heading {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.login-form-heading h4 {
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 0;
+  color: #333;
+}
+
+.login-form-label {
+  label {
+    width: 100%;
+  }
+}
+
+.login-form-submit {
+  width: 100%;
+  height: 50px;
+  font-size: 1.2rem;
+  background: linear-gradient(to right, #d27b1e, #D2691E);
+  border: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.login-form-submit {
+  transition: all 0.3s ease;
+}
+
+.login-form-submit:hover {
+  transform: scale(1.05);
+  background-color: #ff8c00;
+}
+
+
+@media (max-width: 768px) {
+  .container {
+  }
+}
+
+@media (max-width: 576px) {
+  .container {
+  }
+}
